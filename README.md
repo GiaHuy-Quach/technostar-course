@@ -1,2 +1,548 @@
 # technostar-course
 Project 1
+#include <stdio.h>
+#include <cstdio>
+#include <vector>
+#include <stdlib.h>
+#include <iostream>
+#include <algorithm>
+#include <iterator>
+#include <numeric>
+#include <list>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <set> 
+#include <cstring>
+#include <iterator>
+#include <set>
+
+
+
+#pragma warning(disable: 4018)
+using namespace std;
+size_t getline(char** lineptr, size_t* n, FILE* stream) {
+	char* bufptr = NULL;
+	char* p = bufptr;
+	size_t size;
+	int c;
+
+	if (lineptr == NULL) {
+		return -1;
+	}
+	if (stream == NULL) {
+		return -1;
+	}
+	if (n == NULL) {
+		return -1;
+	}
+	bufptr = *lineptr;
+	size = *n;
+
+	c = fgetc(stream);
+	if (c == EOF) {
+		return -1;
+	}
+	if (bufptr == NULL) {
+		bufptr = (char*)malloc(128);
+		if (bufptr == NULL) {
+			return -1;
+		}
+		size = 128;
+	}
+	p = bufptr;
+	while (c != EOF) {
+		if ((p - bufptr) > (size - 1)) {
+			size = size + 128;
+			bufptr = (char*)realloc(bufptr, size);
+			if (bufptr == NULL) {
+				return -1;
+			}
+		}
+		*p++ = c;
+		if (c == '\n') {
+			break;
+		}
+		c = fgetc(stream);
+	}
+
+	*p++ = '\0';
+	*lineptr = bufptr;
+	*n = size;
+
+	return p - bufptr - 1;
+}
+void tokenize(std::string const &str, const char delim,
+	std::vector<std::string> &out)
+{
+	// construct a stream from the string
+	std::stringstream ss(str);
+
+	std::string s;
+	while (std::getline(ss, s, delim)) {
+		out.push_back(s);
+	}
+}
+ double mag(vector<double> n)
+{
+	 n.resize(3);
+	 return sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]);
+ };
+ void cross_product(vector<double>vector_a, vector<double>vector_b, vector<double>temp) {
+	vector_a.resize(3);
+	vector_b.resize(3);
+	temp.resize(3);
+	 temp[0] = vector_a[1] * vector_b[2] - vector_a[2] * vector_b[1];
+	 temp[1] = vector_a[0] * vector_b[2] - vector_a[2] * vector_b[0];
+	 temp[2] = vector_a[0] * vector_b[1] - vector_a[1] * vector_b[0];
+ }
+int main()
+{
+	fstream face;
+	vector<vector<int>>vecFace;
+	face.open("C:\\Users\\Admin\\Documents\\Visual Studio 2015\\Projects\\Project1\\Constant5\\faces", ios::in);
+	if (face.is_open()) {
+		string tp;
+		vector<vector<string>>face_small;
+		while (getline(face, tp)) {
+			istringstream iss(tp);
+			size_t first = tp.find("(");
+			if (first == string::npos)
+				continue;
+			if (tp.size() == 1)
+				continue;
+			const char delim1 = '(';
+			const char delim2 = ')';
+			const char delim3 = ' ';
+			vector<string> out, buff, last;
+			tokenize(tp, delim1, out);
+			tokenize(out[1], delim2, buff);
+			tokenize(buff[0], delim3, last);
+			face_small.push_back(last);
+
+		}
+		for (int i = 0; i < face_small.size(); i++)
+		{
+			vector<int> vecRaw;
+			for (int j = 0; j < face_small[i].size(); j++) {
+				int a = stoi(face_small[i][j]);
+				vecRaw.push_back(a);
+			}
+			vecFace.push_back(vecRaw);
+		}
+	}
+
+	struct Neighbour
+	{
+		int x = 0;
+	};
+	vector<int> vecNeighbour;
+	FILE* neig;
+	fopen_s(&neig, "C:\\Users\\Admin\\Documents\\Visual Studio 2015\\Projects\\Project1\\Constant5\\neighbour", "rb");
+	if (neig == NULL)
+	{
+		printf("can't open neighbour file!");
+	}
+	int bufNeighbour;
+	size_t n2 = 200;
+	char* buf2 = (char*)malloc(sizeof(char) * n2);
+	while (1)
+	{
+		int c2 = (int)getline(&buf2, &n2, neig);
+		if (c2 == -1) break;
+		int d2 = sscanf_s(buf2, "%i\n", &bufNeighbour);
+		if (d2 == 1)
+		{
+			vecNeighbour.push_back(bufNeighbour);
+			//cout << bufNeighbour.x << endl;
+
+		}
+	}
+	fclose(neig);
+
+	struct Owner
+	{
+		int x = 0;
+	};
+	vector<int> vecOwner;
+	FILE* own;
+	fopen_s(&own, "C:\\Users\\Admin\\Documents\\Visual Studio 2015\\Projects\\Project1\\Constant5\\owner", "rb");
+	if (own == NULL)
+	{
+		printf("can't open owner file!");
+	}
+	int bufOwner;
+	size_t n3 = 200;
+	char* buf3 = (char*)malloc(sizeof(char) * n3);
+	while (1)
+	{
+		int c3 = (int)getline(&buf3, &n3, own);
+		if (c3 == -1) break;
+		int d3 = sscanf_s(buf3, "%i\n", &bufOwner);
+		if (d3 == 1)
+		{
+			vecOwner.push_back(bufOwner);
+			//cout << bufOwner.x << endl;
+		}
+	}
+	fclose(own);
+
+	fstream points;
+	vector<double>vecPoints;
+	face.open("C:\\Users\\Admin\\Documents\\Visual Studio 2015\\Projects\\Project1\\Constant5\\points", ios::in);
+	if (points.is_open()) {
+		string tp;
+		vector<vector<string>>points_small;
+		while (getline(points, tp)) {
+			istringstream iss(tp);
+			size_t first = tp.find("(");
+			if (first == string::npos)
+				continue;
+			if (tp.size() == 1)
+				continue;
+			const char delim1 = '(';
+			const char delim2 = ')';
+			const char delim3 = ' ';
+			vector<string> out, buff, last;
+			tokenize(tp, delim1, out);
+			tokenize(out[1], delim2, buff);
+			tokenize(buff[0], delim3, last);
+			points_small.push_back(last);
+
+		}
+		for (int i = 0; i < points_small.size(); i++)
+		{
+			vector<double> vecRaw;
+			for (int j = 0; j < points_small[i].size(); j++) {
+				int a = stoi(points_small[i][j]);
+				vecRaw.push_back(a);
+			}
+			vecPoints.push_back(vecRaw[i]);
+		}
+	}
+	/*struct Point
+	{
+		double x = 0;
+		double y = 0;
+		double z = 0;
+
+		unsigned int DemPhanTu(std::vector<Point> vecPoint)
+		{
+			unsigned int varReturn = 0;
+			if (vecPoint.size() == 0) return varReturn;
+			for (int i = 0; i < (int)vecPoint.size(); ++i)
+			{
+				if (vecPoint[i].x == x && vecPoint[i].y == y && vecPoint[i].z == z) varReturn++;
+			}
+
+			return varReturn;
+		}
+	};
+	vector<Point> vecPoint;
+	FILE* pnt;
+	fopen_s(&pnt, "C:\\Users\\Admin\\Documents\\Visual Studio 2015\\Projects\\Project1\\Constant5\\points", "rb");
+	if (pnt == NULL)
+	{
+		printf("can't open points file!");
+	}
+	Point bufPoint;
+	size_t n = 200;
+	char* buf4 = (char*)malloc(sizeof(char) * n);
+	while (1)
+	{
+		int c = (int)getline(&buf4, &n, pnt);
+		if (c == -1) break;
+		int d = sscanf_s(buf4, "(%lf %lf %lf)\n", &bufPoint.x, &bufPoint.y, &bufPoint.z);
+		if (d == 3)
+		{
+			vecPoint.push_back(bufPoint);
+		}
+	}*/
+	vecNeighbour.erase(vecNeighbour.begin());
+	vecOwner.erase(vecOwner.begin());
+	int SumofNeighbourcell = *max_element(vecNeighbour.begin(), vecNeighbour.end());
+	int SumofOwnercell = *max_element(vecOwner.begin(), vecOwner.end());
+	int SumofCell;
+	if (SumofNeighbourcell > SumofOwnercell)
+		SumofCell = SumofNeighbourcell + 1;
+	else
+		SumofCell = SumofOwnercell + 1;
+
+	vector<vector<int>> vecCell; vecCell.resize(SumofCell);
+	int hex = 0, wedge = 0, prism = 0, pyr = 0, tet = 0, tetWedge = 0, poly = 0;
+	for (int cell = 0; cell < SumofCell; ++cell)
+	{
+		vector<int> Vct;
+		for (int i = 0; i < vecOwner.size(); ++i)
+		{
+			if (vecOwner[i] == cell)
+			{
+				Vct.push_back(i);
+			}
+		}
+		for (int i = 0; i < vecNeighbour.size(); i++)
+		{
+			if (vecNeighbour[i] == cell)
+			{
+				Vct.push_back(i);
+			}
+		}
+		int countNode3 = 0, countNode4 = 0;
+		if (Vct.size() == 4)
+		{
+			set<int> setIDNode;
+			for (int j = 0; j < Vct.size(); ++j)
+			{
+				for (int k = 0; k < vecFace[Vct[j]].size(); ++k)
+				{
+					setIDNode.insert(vecFace[Vct[j]][k]);
+				}
+			}
+			if (setIDNode.size() == 5) {
+				for (int j = 0; j < Vct.size(); ++j)
+				{
+					if (vecFace[Vct[j]].size() == 3) {
+						countNode3++;
+					}
+					else if (vecFace[Vct[j]].size() == 4) {
+						countNode4++;
+					}
+				}
+			if (countNode3 == 2 && countNode4 == 2) {
+					tetWedge++;
+				
+				}
+				else poly++;
+
+			}
+			else if (setIDNode.size() == 4) {
+				for (int j = 0; j < Vct.size(); ++j)
+				{
+					if (vecFace[Vct[j]].size() == 3) {
+						countNode3++;
+					}
+				}
+				if (countNode3 == 4) {
+					tet++;
+				}
+				else poly++;
+			}
+			else poly++;
+				
+		}
+		else if (Vct.size() == 5)
+		{
+				set<int> setIDNode;
+				for (int j = 0; j < Vct.size(); ++j)
+				{
+					for (int k = 0; k < vecFace[Vct[j]].size(); ++k)
+					{
+						setIDNode.insert(vecFace[Vct[j]][k]);
+					}
+				}
+				if (setIDNode.size() == 5) {
+					for (int j = 0; j < Vct.size(); ++j)
+					{
+						if (vecFace[Vct[j]].size() == 3) {
+							countNode3++;
+						}
+						if (vecFace[Vct[j]].size() == 4) {
+							countNode4++;
+						}
+					}
+					if (countNode3 == 4 && countNode4 == 1) {
+						pyr++;
+					}
+					else poly++;
+				}
+				else if (setIDNode.size() == 6) {
+					for (int j = 0; j < Vct.size(); ++j)
+					{
+						if (vecFace[Vct[j]].size() == 3) {
+							countNode3++;
+						}
+						else if (vecFace[Vct[j]].size() == 4) {
+							countNode4++;
+						}
+
+					}
+					if (countNode3 == 2 && countNode4 == 3) {
+						prism++;
+					}
+					else poly++;
+				}
+				else poly++;
+		}
+		else if (Vct.size() == 6)
+		{
+				set<int> setIDNode;
+				for (int j = 0; j < Vct.size(); ++j)
+				{
+					for (int k = 0; k < vecFace[Vct[j]].size(); ++k)
+					{
+						setIDNode.insert(vecFace[Vct[j]][k]);
+					}
+				}
+				if (setIDNode.size() == 7) {
+					for (int j = 0; j < Vct.size(); ++j)
+					{
+						if (vecFace[Vct[j]].size() == 3) {
+							countNode3++;
+						}
+						if (vecFace[Vct[j]].size() == 4) {
+							countNode4++;
+						}
+					}
+					if (countNode3 == 2 && countNode4 == 4) {
+						wedge++;
+					}
+					else poly++;
+				}
+				else if (setIDNode.size() == 8) {
+					for (int j = 0; j < Vct.size(); ++j)
+					{
+						if (vecFace[Vct[j]].size() == 4) {
+							countNode4++;
+						}
+					}
+					if (countNode4 == 6) {
+						hex++;
+					}
+					else poly++;
+				}
+				else poly++;
+		}
+
+		else poly++;
+		
+	}
+	///////////////////////////////////////////Centroid and Areas///////////////////////////////////////////
+	for (int cell = 0; cell < SumofCell; ++cell)
+	{
+		vector<int> Vct;
+		for (int i = 0; i < vecOwner.size(); ++i)
+		{
+			if (vecOwner[i] == cell)
+			{
+				Vct.push_back(i);
+			}
+		}
+		for (int i = 0; i < vecNeighbour.size(); i++)
+		{
+			if (vecNeighbour[i] == cell)
+			{
+				Vct.push_back(i);
+			}
+		}
+		for (int j = 0; j < Vct.size(); ++j)
+		{
+			vector<double>faceCentres;
+			faceCentres.resize(3);
+			vector<double>faceAreas,buff1,buff2;
+			if (vecFace[Vct[j]].size() == 3) {
+				for (int i = 0; i < 3; i++) {
+					for (int j = 0; j < vecFace.size(); j++) {
+						faceCentres[i]=(vecPoints[i] + vecPoints[i+1]+vecPoints[i+2])/3;
+						
+						// sửa lại vector centres, areas của cả các face
+						
+						buff1[0] = vecPoints[1] - vecPoints[0];
+						buff1[1] = vecPoints[1] - vecPoints[0];
+						faceAreas[i] = 0.5;
+						/*faceCentres[0] = (faceCentres[0] + vecPoints[0][i]) / 3;
+						faceCentres[1] = (faceCentres[1] + vecPoints[1][i]) / 3;
+						faceCentres[2] = (faceCentres[2] + vecPoints[2][i]) / 3;*/
+					}
+				}
+				//double a, b, c, s, area;
+				//a = sqrt(((vecPoints[1][1] - vecPoints[0][1])*(vecPoints[2][2] - vecPoints[0][2]))*((vecPoints[1][1] - vecPoints[0][1])*(vecPoints[2][2] - vecPoints[0][2]))
+				//	- ((vecPoints[1][2] - vecPoints[0][2])*(vecPoints[2][1] - vecPoints[0][1]))*((vecPoints[1][2] - vecPoints[0][2])*(vecPoints[2][1] - vecPoints[0][1])));
+				//b = sqrt(((vecPoints[1][2] - vecPoints[0][2])*(vecPoints[2][0] - vecPoints[0][0]))*((vecPoints[1][2] - vecPoints[0][2])*(vecPoints[2][0] - vecPoints[0][0]))
+				//	- ((vecPoints[1][0] - vecPoints[0][0])*(vecPoints[2][2] - vecPoints[0][2]))*((vecPoints[1][0] - vecPoints[0][0])*(vecPoints[2][2] - vecPoints[0][2])));
+				//c = sqrt(((vecPoints[1][0] - vecPoints[0][0])*(vecPoints[2][1] - vecPoints[0][1]))*((vecPoints[1][0] - vecPoints[0][0])*(vecPoints[2][1] - vecPoints[0][1]))
+				//	- ((vecPoints[1][1] - vecPoints[0][1])*(vecPoints[2][0] - vecPoints[0][0]))*((vecPoints[1][1] - vecPoints[0][1])*(vecPoints[2][0] - vecPoints[0][0])));
+				//s = 0.5*a + b + c;
+				//area = sqrt((s*(s - a)*(s - b)*(s - c)));
+			}
+			else {
+				for (int i = 1; i < vecPoints.size(); i++) {
+					faceCentres[i] += vecPoints[i];
+				}
+
+				faceCentres[0] /= vecPoints.size();
+				faceCentres[1] /= vecPoints.size();
+				faceCentres[2] /= vecPoints.size();
+				vector<double>sumN, sumAc; sumN.resize(3); sumN.resize(3);
+				double sumA = 0;
+				for (int pi = 0; pi < vecPoints.size(); pi++) {
+					vector<double>nextPoint, c, n, buff1, buff2;
+					nextPoint.resize(3); c.resize(3); n.resize(3); buff1.resize(3); buff2.resize(3);
+					nextPoint = vecPoints[(pi + 1) % vecPoints.size()];
+					c[0] = vecPoints[pi][0] + nextPoint[0] + faceCentres[0];
+					c[1] = vecPoints[pi][1] + nextPoint[1] + faceCentres[1];
+					c[2] = vecPoints[pi][2] + nextPoint[2] + faceCentres[2];
+					buff1[0] = nextPoint[0] - vecPoints[pi][0];
+					buff1[1] = nextPoint[1] - vecPoints[pi][1];
+					buff1[2] = nextPoint[2] - vecPoints[pi][2];
+					buff2[0] = faceCentres[0] - vecPoints[pi][0];
+					buff2[1] = faceCentres[1] - vecPoints[pi][1];
+					buff2[2] = faceCentres[2] - vecPoints[pi][2];
+					cross_product(buff1, buff2, n);
+					double a = mag(n);
+					sumN[0] += n[0]; sumN[1] += n[1]; sumN[2] += n[2];
+					sumA += a;
+					sumAc[0] += a*c[0];
+					sumAc[1] += a*c[1];
+					sumAc[2] += a*c[2];
+				}
+				faceCentres[0] = (sumAc[0] / sumA) / 3;
+				faceCentres[1] = (sumAc[1] / sumA) / 3;
+				faceCentres[2] = (sumAc[2] / sumA) / 3;
+				for (int i; i< Sumof)
+				faceAreas[0] = 0.5*mag(sumN);
+			}
+		}
+
+	}
+	///////////////////////////////////////////////Severe nonorthogonality threshold ////////////////////////////////////////////
+	
+	int SumofInternal=SumofOwnercell-SumofNeighbourcell;
+	for (int pi = 0; pi < SumofOwnercell; pi++) {
+		if (pi < SumofInternal) {
+			vector<int> InternalFace;
+			for (int i = 0; i < SumofInternal; i++) {
+				vector<vector<int>>internal_small;
+				internal_small.push_back(vecFace[i]);
+				for (int j = 0; j < internal_small[i].size(); j++) {
+					InternalFace.push_back(internal_small[i][j]);
+				}
+			}
+			double minDDotS = 0;
+			double sumDDotS = 0;
+			double severeNonOrth = 0;
+			double errorNonOrth = 0;
+			vector<double> cellCentres;
+			vector<double> d;
+			d[0] = cellCentres[vecNeighbour[0]] - cellCentres[vecOwner[0]];
+			d[1] = cellCentres[vecNeighbour[1]] - cellCentres[vecOwner[1]];
+			d[2] = cellCentres[vecNeighbour[2]] - cellCentres[vecOwner[2]];
+			vector<int>faceAreas;
+			faceAreas[0] = ;
+
+			double dDotS=
+		}
+		/*else vector<int>Boundary;
+		Boundary.push_back(vecFace[i]);*/
+		break;
+
+	cout << "cells: " << SumofCell << endl;
+	cout << "hexahedra: " << hex << endl;
+	cout << "prisms: " << prism << endl;
+	cout << "wedges: " << wedge << endl;
+	cout << "pyramids: " << pyr << endl;
+	cout << "tet wedges: " << tetWedge << endl;
+	cout << "tetrahedra: " << tet << endl;
+	cout << "polyhedra: " << poly << endl;
+	system("pause");
+	return 0;
+}
